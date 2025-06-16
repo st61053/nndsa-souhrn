@@ -70,6 +70,9 @@ Kódování ilustračního textu:
 **Princip:** Místo jednotlivých znaků se kódují celé sekvence znaků, které se v textu opakují.
 > Místo toho, abychom opakovaný řetězec psali znovu, jen si zapamatujeme, že už jsme ho jednou použili, a příště ho odkážeme číslem.
 
+LZ-kódování je postavené na `Hashovací tabulce`
+Pro implementaci (dynamického) slovníku lze využít **Znakový strom (Trie)**
+
 #### Jak to funguje:
 
 1. Na začátku má algoritmus slovník obsahující jednotlivé znaky.
@@ -87,46 +90,36 @@ Kódování ilustračního textu:
 * Slovník se může „zaplnit“ – je nutné buď přestat přidávat nové položky, nebo něco ze slovníku odebrat.
 
 #### Příklad
->LZ-kódování textu s=’mame kokosy a ananasy’ po provedené inicializaci slovníku
+>LZ-kódování textu `ananas` po provedené inicializaci slovníku
 
-![alternativní text](./lempel-ziv.png)
-
----
-
-#### Příklad komprese slova `ananas`
-
-* Udržuje se slovník podřetězců (prefixů).
-* Každý nový vstupní symbol tvoří se známým prefixem nový záznam.
-* Výstup je dvojice `(index, nový_znak)`.
-
----
-
-#### Krok po kroku
-
-| Krok | Vstup | Slovník před | Výstup | Nový záznam ve slovníku |
-| ---- | ----- | ------------ | ------ | ----------------------- |
-| 1    | a     | —            | (0, a) | 1: a                    |
-| 2    | n     | a            | (0, n) | 2: n                    |
-| 3    | a     | a, n         | (1, n) | 3: an                   |
-| 4    | a     | a, n, an     | (1, s) | 4: as                   |
-| 5    | s     | a, n, an, as | (0, s) | 5: s                    |
-
----
-
-#### Výsledek (LZ78 výstup):
+```json
+1: (0, a) → "a"      | "ananas"
+2: (0, n) → "n"      | "nanas"
+3: (1, n) → "an"     | "anas"
+4: (2, a) → "na"     | "nas"
+5: (1, s) → "as"     | "as"  
+6: (0, s) → "s"      | "s"  
 
 ```
-[(0, 'a'), (0, 'n'), (1, 'n'), (1, 's')]
-```
 
-Tímto způsobem by bylo `ananas` zakódováno pomocí LZ78.
-
+#### Popis algoritmu kroku 4:
+* Vstupní řetězec: `"nas"`
+* Hledáme nejdelší prefix řetězce ve slovníku → `n → index 2`
+* Další znak, který následuje: `a`
+* Výstup do slovníku: `(2, a) → "na"`
+* Vstup zkrátíme o prefix `n`
+* Nový vstupní řetězec: `"as"`
 
 ---
+
+#### Příklad komprese slova `ananas` pomocí LZW
+
+![alternativní text](./lzw.png)
+
 
 ## Vyhledávání v řetězcích
 
-### Přímé (naivní) vyhledávání
+### Přímé vyhledávání
 
 **Princip:** Porovnává se každý možný výskyt vzoru ve větším textu.
 
@@ -134,7 +127,7 @@ Tímto způsobem by bylo `ananas` zakódováno pomocí LZ78.
 
 1. Pro každý možný začátek ve větším textu:
 
-   * Porovnávej znak po znaku, zda se vzor (např. „oko“) shoduje s částí textu (např. „kokos“).
+   * Porovnávej znak po znaku, zda se vzor (např. `ABCD`) shoduje s částí textu (např. `ABCE`).
    * Pokud se všechny znaky shodují, vzor byl nalezen.
 
 #### Výhoda:
@@ -146,6 +139,11 @@ Tímto způsobem by bylo `ananas` zakódováno pomocí LZ78.
 * Neefektivní pro delší texty nebo složité vzory.
 
 ![alternativní text](./přímé-vyhledávání.png)
+
+#### Akceptovatelné pro:
+* Kratší texty
+* Krátké vzory
+* Čtení z externí paměti
 ---
 
 ### Knuth-Morris-Pratt (KMP) algoritmus
@@ -157,6 +155,19 @@ Tímto způsobem by bylo `ananas` zakódováno pomocí LZ78.
 1. Algoritmus si připraví tabulku posunů podle vzoru (tzv. `kmpPole`).
 2. Při neshodě nevrací hledání úplně zpět, ale posune vzor o optimální počet znaků.
 3. Díky tomu je mnohem rychlejší než přímé vyhledávání.
+
+#### Příklad:
+* Pokud `kmpPole[4][X] = 2` posuneme pattern o 2 znaky doprava
+
+![alternativní text](./KMP-pole.png)
+![alternativní text](./KMP-posun.png)
+
+#### Pravidla výpočtu `kmpPole[i][c]`
+Chceme najít nejmenší `d`, že
+1. `P[i - d] == c`
+2. `P[j] == P[j + d]` pro všechna `j = 0 .. i - d - 1`
+
+Pokud žádné `d` nevyhovuje (jiné), pak nastavíme `d = i + 1` 
 
 ---
 

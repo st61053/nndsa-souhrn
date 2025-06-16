@@ -2,7 +2,7 @@
 
 ## Jak trie zapadá do kontextu ADT
 
-Trie je specializovaná **stromová datová struktura**, která reprezentuje množinu řetězců (např. slov) a umožňuje jejich efektivní vyhledávání podle znaků. Konceptuálně odpovídá **ADT Tabulka**, kde klíčem je řetězec a hodnotou může být např. počet výskytů, význam slova nebo ukazatel na data.
+Trie je specializovaná **stromová datová struktura**, která reprezentuje množinu řetězců (např. slov) a umožňuje jejich efektivní vyhledávání podle znaků. Konceptuálně odpovídá instanci **ADT Tabulka** s explicitní implementací **ADT Uspořádaný kořenový strom**. Prvky tabulky jsou klíče typu **řetězec**. Využívá **dekompozici klíče** na části (obvykle elementární znaky), které jsou postupně umístěny (směrem od kořene k listům) v různých úrovních uspořádaného k-cestného stromu.
 
 Ve smyslu **abstraktního datového typu (ADT)** trie realizuje operace jako:
 
